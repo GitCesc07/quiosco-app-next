@@ -1,12 +1,72 @@
+import { Product } from "@/app/generated/prisma";
 import { OrderItem } from "@/types";
 import { create } from "zustand";
 
 interface Store {
-    order: OrderItem[]
-    // addToOrder: (item: OrderItem) => void
-    // removeFromOrder: (id: string) => void
+  order: OrderItem[];
+  addToOrder: (product: Product) => void;
+  increaseQuantity: (id: Product["id"]) => void;
+  decreaseQuantity: (id: Product["id"]) => void;
 }
 
-export const useStore = create<Store>(() => ({
-    order: []
-}))
+export const useStore = create<Store>((set, get) => ({
+  order: [],
+  addToOrder: (product) => {
+    const { categoryId, image, ...data } = product;
+    let order: OrderItem[] = [];
+
+    if (get().order.find((item) => item.id === product.id)) {
+      order = get().order.map((item) =>
+        item.id === product.id
+          ? {
+              ...item,
+              quantity: item.quantity + 1,
+              subtotal: item.price * (item.quantity + 1),
+            }
+          : item
+      );
+    } else {
+      order = [
+        ...get().order,
+        {
+          ...data,
+          quantity: 1,
+          subtotal: 1 * data.price,
+        },
+      ];
+    }
+
+    set(() => ({
+      order,
+    }));
+  },
+
+  increaseQuantity: (id) => {
+    set((state) => ({
+      order: state.order.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              quantity: item.quantity + 1,
+              subtotal: item.price * (item.quantity + 1),
+            }
+          : item
+      ),
+    }));
+  },
+
+  decreaseQuantity: (id) => {
+    const order = get().order.map((item) =>
+      item.id === id
+        ? {
+            ...item,
+            quantity: item.quantity - 1,
+          }
+        : item
+    );
+
+    set(() => ({
+        order
+    }))
+  }
+}));

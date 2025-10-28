@@ -4,21 +4,39 @@ import { OrderItem } from "@/types";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { MinusIcon } from "@heroicons/react/24/outline";
 import { XCircleIcon } from "@heroicons/react/24/outline";
+import { useMemo } from "react";
 
 type ProductDetailsProps = {
   item: OrderItem;
 };
 
+const MIN_ITEMS = 1;
+const MAX_ITEMS = 5;
+
 export default function ProductDetails({ item }: ProductDetailsProps) {
   const increaseQuantity = useStore((state) => state.increaseQuantity);
   const decreaseQuantity = useStore((state) => state.decreaseQuantity);
+  const removeItem = useStore((state) => state.removeItem);
+  const disableDecreaseButton = useMemo(
+    () => item.quantity === MIN_ITEMS,
+    [item]
+  );
+  const disableIncreaseButton = useMemo(
+    () => item.quantity === MAX_ITEMS,
+    [item]
+  );
   return (
     <div className="shadow space-y-1 bg-white  border-t border-gray-200 ">
       <div className="space-y-4">
         <div className="flex justify-between items-start">
           <p className="text-xl font-bold">{item.name} </p>
 
-          <button type="button" onClick={() => {}}>
+          <button
+            type="button"
+            onClick={() => {
+              removeItem(item.id);
+            }}
+          >
             <XCircleIcon className="text-red-600 h-8 w-8" />
           </button>
         </div>
@@ -31,6 +49,8 @@ export default function ProductDetails({ item }: ProductDetailsProps) {
             onClick={() => {
               decreaseQuantity(item.id);
             }}
+            disabled={disableDecreaseButton}
+            className="disable:opacity-20 disabled:cursor-not-allowed"
           >
             <MinusIcon className="h-6 w-6" />
           </button>
@@ -42,6 +62,8 @@ export default function ProductDetails({ item }: ProductDetailsProps) {
             onClick={() => {
               increaseQuantity(item.id);
             }}
+            disabled={disableIncreaseButton}
+            className="disable:opacity-20 disabled:cursor-not-allowed"
           >
             <PlusIcon className="h-6 w-6" />
           </button>

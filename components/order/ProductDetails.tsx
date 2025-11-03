@@ -5,6 +5,7 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 import { MinusIcon } from "@heroicons/react/24/outline";
 import { XCircleIcon } from "@heroicons/react/24/outline";
 import { useMemo } from "react";
+import { toast } from "react-toastify";
 
 type ProductDetailsProps = {
   item: OrderItem;
@@ -34,6 +35,7 @@ export default function ProductDetails({ item }: ProductDetailsProps) {
           <button
             type="button"
             onClick={() => {
+              toast.success("Producto removido correctamente...");
               removeItem(item.id);
             }}
           >
